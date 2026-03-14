@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 5 — ML модели | ML Учебник</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d14; --surface: #12151f; --surface2: #1a1e2e;
+    --border: #252a3d; --accent: #f472b6; --accent3: #22d3a5;
+    --accent-gold: #f0a500;
+    --text: #e2e4f0; --text-muted: #7a7f9a; --text-dim: #3d425a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
+  body::before {
+    content: ''; position: fixed; inset: 0; z-index: 0;
+    background-image: linear-gradient(rgba(244,114,182,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(244,114,182,0.025) 1px, transparent 1px);
+    background-size: 48px 48px; pointer-events: none;
+  }
+  .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(11,13,20,0.88); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); height: 56px; display: flex; align-items: center; padding: 0 clamp(1.5rem, 5vw, 4rem); justify-content: space-between; }
+  .nav-brand { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--accent-gold); text-decoration: none; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
+  .nav-brand::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-gold); animation: blink 2.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .back-link { font-size: 13px; color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .back-link:hover { color: var(--text); }
+  .glow { position: fixed; pointer-events: none; z-index: 0; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(244,114,182,0.07) 0%, transparent 65%); top: -200px; left: 50%; transform: translateX(-50%); }
+  .main { position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px clamp(1.5rem, 5vw, 4rem) 60px; text-align: center; }
+  .lesson-meta { display: inline-flex; align-items: center; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 32px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  h1 { font-family: 'Fraunces', serif; font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.03em; color: #fff; margin-bottom: 24px; max-width: 700px; }
+  h1 em { font-style: italic; color: var(--accent); }
+  .desc { font-size: clamp(1rem, 2vw, 1.15rem); color: var(--text-muted); line-height: 1.65; max-width: 560px; margin: 0 auto 48px; }
+  .progress-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 28px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 56px; width: 100%; max-width: 680px; }
+  .step { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 11px; text-align: center; color: var(--text-dim); }
+  .step.done { border-color: rgba(34,211,165,0.3); background: rgba(34,211,165,0.06); color: var(--accent3); }
+  .step.current { border-color: var(--accent); background: rgba(244,114,182,0.08); color: var(--accent); font-weight: 500; }
+  .step-num { font-size: 18px; font-weight: 600; display: block; margin-bottom: 2px; font-family: 'Fraunces', serif; }
+  .topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; width: 100%; max-width: 680px; margin-bottom: 32px; text-align: left; }
+  .topic { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .topic-icon { font-size: 20px; margin-bottom: 10px; display: block; }
+  .topic-title { font-weight: 500; color: var(--text); font-size: 14px; margin-bottom: 5px; }
+  .topic-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
+
+  /* PIPELINE PREVIEW */
+  .pipeline {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px;
+    width: 100%; max-width: 680px; margin-bottom: 40px;
+    text-align: left;
+  }
+  .pipeline-label { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
+  .pipeline-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; gap: 8px; }
+  .p-step {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--text-muted);
+  }
+  .p-arrow { color: var(--text-dim); font-size: 14px; }
+  .p-step.highlight { border-color: rgba(244,114,182,0.3); color: var(--accent); background: rgba(244,114,182,0.06); }
+
+  /* METRICS */
+  .metrics { display: flex; gap: 12px; width: 100%; max-width: 680px; margin-bottom: 40px; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; flex: 1; text-align: center; }
+  .metric-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
+  .metric-val { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 600; color: #fff; }
+  .metric-sub { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
+
+  .status-chip { display: inline-flex; align-items: center; gap: 8px; background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.2); color: var(--accent); padding: 8px 20px; border-radius: 24px; font-size: 13px; font-weight: 500; margin-bottom: 24px; }
+  .home-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 22px; border-radius: 8px; font-size: 14px; text-decoration: none; transition: all 0.2s; }
+  .home-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+  footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 24px clamp(1.5rem, 5vw, 4rem); text-align: center; font-size: 12px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<nav class="nav">
+  <a href="index.html" class="nav-brand">ML Учебник</a>
+  <a href="index.html" class="back-link">← Все уроки</a>
+</nav>
+<main class="main">
+  <div class="lesson-meta"><span class="dot"></span> Урок 05 / 05 · Финал</div>
+  <h1>ML<br><em>модели</em></h1>
+  <p class="desc">
+    Финальный урок. Всё что мы чистили, преобразовывали и анализировали — теперь идёт в модель.
+    Обучаем, оцениваем, интерпретируем. Узнаём что реально влияет на цену кроссовок.
+  </p>
+
+  <div class="progress-wrap">
+    <div class="step done"><span class="step-num">1</span>Загрузка</div>
+    <div class="step done"><span class="step-num">2</span>Очистка</div>
+    <div class="step done"><span class="step-num">3</span>EDA</div>
+    <div class="step done"><span class="step-num">4</span>Features</div>
+    <div class="step current"><span class="step-num">5</span>Модели</div>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="pipeline">
+    <div class="pipeline-label">ML Pipeline</div>
+    <div class="pipeline-steps">
+      <div class="p-step">df_clean</div>
+      <div class="p-arrow">→</div>
+      <div class="p-step">train_test_split</div>
+      <div class="p-arrow">→</div>
+      <div class="p-step highlight">fit(X_train)</div>
+      <div class="p-arrow">→</div>
+      <div class="p-step highlight">predict(X_test)</div>
+      <div class="p-arrow">→</div>
+      <div class="p-step">metrics</div>
+    </div>
+  </div>
+
+  <!-- Mock metrics -->
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-name">Accuracy</div>
+      <div class="metric-val">?</div>
+      <div class="metric-sub">классификация</div>
+    </div>
+    <div class="metric">
+      <div class="metric-name">R² Score</div>
+      <div class="metric-val">?</div>
+      <div class="metric-sub">регрессия</div>
+    </div>
+    <div class="metric">
+      <div class="metric-name">Top Feature</div>
+      <div class="metric-val">?</div>
+      <div class="metric-sub">важность</div>
+    </div>
+  </div>
+
+  <div class="topics">
+    <div class="topic">
+      <span class="topic-icon">✂️</span>
+      <div class="topic-title">train_test_split</div>
+      <div class="topic-desc">Делим данные 80/20. Почему нельзя обучать и тестировать на одних данных</div>
+    </div>
+    <div class="topic">
+      <span class="topic-icon">🌳</span>
+      <div class="topic-title">Random Forest</div>
+      <div class="topic-desc">Ансамбль деревьев решений — мощный и интерпретируемый алгоритм</div>
+    </div>
+    <div class="topic">
+      <span class="topic-icon">📐</span>
+      <div class="topic-title">Метрики качества</div>
+      <div class="topic-desc">accuracy, precision, recall, F1, MAE, R² — как понять насколько хороша модель</div>
+    </div>
+    <div class="topic">
+      <span class="topic-icon">🔍</span>
+      <div class="topic-title">Feature Importance</div>
+      <div class="topic-desc">Какие признаки важны для предсказания — интерпретируем модель</div>
+    </div>
+  </div>
+
+  <div class="status-chip">Откроется после завершения Урока 4</div>
+  <br><br>
+  <a href="index.html" class="home-btn">← Вернуться на главную</a>
+</main>
+<footer>ML-edu · Урок 5 · ML Модели · Финал курса</footer>
+</body>
+</html>
