@@ -8,17 +8,12 @@
 <style>
   :root {
     --bg: #0b0d14; --surface: #12151f; --surface2: #1a1e2e;
-    --border: #252a3d; --accent: #f472b6; --accent3: #22d3a5;
-    --accent-gold: #f0a500;
+    --border: #252a3d; --accent: #f472b6; --accent3: #22d3a5; --accent-gold: #f0a500;
     --text: #e2e4f0; --text-muted: #7a7f9a; --text-dim: #3d425a;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; display: flex; flex-direction: column; }
-  body::before {
-    content: ''; position: fixed; inset: 0; z-index: 0;
-    background-image: linear-gradient(rgba(244,114,182,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(244,114,182,0.025) 1px, transparent 1px);
-    background-size: 48px 48px; pointer-events: none;
-  }
+  body::before { content: ''; position: fixed; inset: 0; z-index: 0; background-image: linear-gradient(rgba(244,114,182,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(244,114,182,0.025) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
   .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(11,13,20,0.88); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); height: 56px; display: flex; align-items: center; padding: 0 clamp(1.5rem, 5vw, 4rem); justify-content: space-between; }
   .nav-brand { font-family: 'Fraunces', serif; font-size: 1rem; font-weight: 600; color: var(--accent-gold); text-decoration: none; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; }
   .nav-brand::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-gold); animation: blink 2.5s infinite; }
@@ -39,35 +34,21 @@
   .step-num { font-size: 18px; font-weight: 600; display: block; margin-bottom: 2px; font-family: 'Fraunces', serif; }
   .topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; width: 100%; max-width: 680px; margin-bottom: 32px; text-align: left; }
   .topic { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
-  .topic-icon { font-size: 20px; margin-bottom: 10px; display: block; }
+  .topic-icon { width: 32px; height: 32px; margin-bottom: 12px; display: block; color: var(--accent); filter: drop-shadow(0 0 5px rgba(244,114,182,0.45)); }
+  .topic-icon svg { width: 100%; height: 100%; }
   .topic-title { font-weight: 500; color: var(--text); font-size: 14px; margin-bottom: 5px; }
   .topic-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.5; }
-
-  /* PIPELINE PREVIEW */
-  .pipeline {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px 24px;
-    width: 100%; max-width: 680px; margin-bottom: 40px;
-    text-align: left;
-  }
+  .pipeline { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 24px; width: 100%; max-width: 680px; margin-bottom: 40px; text-align: left; }
   .pipeline-label { font-size: 11px; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 16px; }
-  .pipeline-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; gap: 8px; }
-  .p-step {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 14px;
-    font-family: 'JetBrains Mono', monospace; font-size: 12px;
-    color: var(--text-muted);
-  }
+  .pipeline-steps { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .p-step { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-muted); }
   .p-arrow { color: var(--text-dim); font-size: 14px; }
   .p-step.highlight { border-color: rgba(244,114,182,0.3); color: var(--accent); background: rgba(244,114,182,0.06); }
-
-  /* METRICS */
   .metrics { display: flex; gap: 12px; width: 100%; max-width: 680px; margin-bottom: 40px; }
   .metric { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px; flex: 1; text-align: center; }
   .metric-name { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 8px; }
   .metric-val { font-family: 'Fraunces', serif; font-size: 1.8rem; font-weight: 600; color: #fff; }
   .metric-sub { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
-
   .status-chip { display: inline-flex; align-items: center; gap: 8px; background: rgba(244,114,182,0.08); border: 1px solid rgba(244,114,182,0.2); color: var(--accent); padding: 8px 20px; border-radius: 24px; font-size: 13px; font-weight: 500; margin-bottom: 24px; }
   .home-btn { display: inline-flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 22px; border-radius: 8px; font-size: 14px; text-decoration: none; transition: all 0.2s; }
   .home-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
@@ -83,10 +64,7 @@
 <main class="main">
   <div class="lesson-meta"><span class="dot"></span> Урок 05 / 05 · Финал</div>
   <h1>ML<br><em>модели</em></h1>
-  <p class="desc">
-    Финальный урок. Всё что мы чистили, преобразовывали и анализировали — теперь идёт в модель.
-    Обучаем, оцениваем, интерпретируем. Узнаём что реально влияет на цену кроссовок.
-  </p>
+  <p class="desc">Финальный урок. Всё что мы чистили, преобразовывали и анализировали — теперь идёт в модель. Обучаем, оцениваем, интерпретируем. Узнаём что реально влияет на цену кроссовок.</p>
 
   <div class="progress-wrap">
     <div class="step done"><span class="step-num">1</span>Загрузка</div>
@@ -96,7 +74,6 @@
     <div class="step current"><span class="step-num">5</span>Модели</div>
   </div>
 
-  <!-- Pipeline -->
   <div class="pipeline">
     <div class="pipeline-label">ML Pipeline</div>
     <div class="pipeline-steps">
@@ -112,7 +89,6 @@
     </div>
   </div>
 
-  <!-- Mock metrics -->
   <div class="metrics">
     <div class="metric">
       <div class="metric-name">Accuracy</div>
@@ -133,22 +109,56 @@
 
   <div class="topics">
     <div class="topic">
-      <span class="topic-icon">✂️</span>
+      <span class="topic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="6" cy="6" r="3"/>
+          <circle cx="6" cy="18" r="3"/>
+          <line x1="20" y1="4" x2="8.12" y2="15.88"/>
+          <line x1="14.47" y1="14.48" x2="20" y2="20"/>
+          <line x1="8.12" y1="8.12" x2="12" y2="12"/>
+        </svg>
+      </span>
       <div class="topic-title">train_test_split</div>
       <div class="topic-desc">Делим данные 80/20. Почему нельзя обучать и тестировать на одних данных</div>
     </div>
     <div class="topic">
-      <span class="topic-icon">🌳</span>
+      <span class="topic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2v4"/>
+          <path d="M6.34 6.34l-2.83 2.83"/>
+          <path d="M2 12h4"/>
+          <path d="M6.34 17.66l-2.83 2.83"/>
+          <path d="M12 22v-4"/>
+          <path d="M17.66 17.66l2.83 2.83"/>
+          <path d="M22 12h-4"/>
+          <path d="M17.66 6.34l2.83-2.83"/>
+          <circle cx="12" cy="12" r="4"/>
+        </svg>
+      </span>
       <div class="topic-title">Random Forest</div>
       <div class="topic-desc">Ансамбль деревьев решений — мощный и интерпретируемый алгоритм</div>
     </div>
     <div class="topic">
-      <span class="topic-icon">📐</span>
+      <span class="topic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 20h20"/>
+          <path d="M2 20L12 4l10 16"/>
+          <line x1="7" y1="20" x2="7" y2="14"/>
+          <line x1="12" y1="20" x2="12" y2="10"/>
+          <line x1="17" y1="20" x2="17" y2="7"/>
+        </svg>
+      </span>
       <div class="topic-title">Метрики качества</div>
       <div class="topic-desc">accuracy, precision, recall, F1, MAE, R² — как понять насколько хороша модель</div>
     </div>
     <div class="topic">
-      <span class="topic-icon">🔍</span>
+      <span class="topic-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          <line x1="8" y1="11" x2="14" y2="11"/>
+        </svg>
+      </span>
       <div class="topic-title">Feature Importance</div>
       <div class="topic-desc">Какие признаки важны для предсказания — интерпретируем модель</div>
     </div>
