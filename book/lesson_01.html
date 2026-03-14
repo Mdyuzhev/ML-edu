@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Урок 1 — Загрузка и разведка данных | ML Учебник</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: #2e3347;
+    --accent: #f0a500;
+    --accent2: #3b82f6;
+    --accent3: #22d3a5;
+    --text: #e2e4f0;
+    --text-muted: #7a7f9a;
+    --text-dim: #4a4f6a;
+    --code-bg: #151820;
+    --output-bg: #13161f;
+    --red: #f87171;
+    --green: #4ade80;
+    --yellow: #fbbf24;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(15,17,23,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 56px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: -0.01em;
+    text-decoration: none;
+  }
+  .nav-pills { display: flex; gap: 8px; }
+  .nav-pill {
+    padding: 4px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500;
+    background: var(--surface2); color: var(--text-muted);
+    border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.2s;
+    text-decoration: none;
+  }
+  .nav-pill.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  /* HERO */
+  .hero {
+    padding: 120px 2rem 60px;
+    max-width: 860px; margin: 0 auto;
+    position: relative;
+  }
+  .lesson-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(240,165,0,0.1); border: 1px solid rgba(240,165,0,0.25);
+    color: var(--accent); padding: 6px 16px; border-radius: 20px;
+    font-size: 12px; font-weight: 500; letter-spacing: 0.05em;
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .lesson-tag::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 600;
+    line-height: 1.15;
+    color: #fff;
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  h1 em { font-style: italic; color: var(--accent); }
+  .hero-desc {
+    font-size: 1.1rem; color: var(--text-muted);
+    max-width: 600px; line-height: 1.6;
+    margin-bottom: 36px;
+  }
+  .meta-row {
+    display: flex; gap: 24px; flex-wrap: wrap;
+    color: var(--text-dim); font-size: 13px;
+  }
+  .meta-item { display: flex; align-items: center; gap: 6px; }
+  .meta-icon { color: var(--accent3); }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 24px;
+    margin: 0 auto 48px; max-width: 860px;
+  }
+  .progress-steps {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+  .step {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 12px;
+    font-size: 11px; text-align: center;
+    color: var(--text-dim);
+  }
+  .step.done {
+    border-color: rgba(34,211,165,0.3);
+    background: rgba(34,211,165,0.06);
+    color: var(--accent3);
+  }
+  .step.active {
+    border-color: var(--accent);
+    background: rgba(240,165,0,0.08);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .step-num { font-size: 18px; font-weight: 600; display: block; margin-bottom: 2px; }
+
+  /* MAIN CONTENT */
+  .content {
+    max-width: 860px; margin: 0 auto;
+    padding: 0 2rem 80px;
+  }
+
+  /* SECTION HEADERS */
+  .section {
+    margin-bottom: 48px;
+    animation: fadeup 0.5s ease both;
+  }
+  @keyframes fadeup {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .section:nth-child(2) { animation-delay: 0.05s; }
+  .section:nth-child(3) { animation-delay: 0.1s; }
+  .section:nth-child(4) { animation-delay: 0.15s; }
+  .section:nth-child(5) { animation-delay: 0.2s; }
+
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.6rem; font-weight: 600;
+    color: #fff; margin-bottom: 16px;
+    padding-top: 8px;
+    letter-spacing: -0.01em;
+  }
+  h2 .anchor {
+    color: var(--accent3); margin-right: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+  }
+  h3 {
+    font-size: 1rem; font-weight: 500;
+    color: var(--text); margin: 24px 0 10px;
+    letter-spacing: 0.01em;
+  }
+
+  p { margin-bottom: 14px; color: var(--text-muted); }
+  strong { color: var(--text); font-weight: 500; }
+
+  /* NOTEBOOK CELL */
+  .cell {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+  .cell:hover { border-color: #3a3f5c; }
+
+  .cell-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .cell-type {
+    padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .cell-type.code { background: rgba(59,130,246,0.15); color: var(--accent2); }
+  .cell-type.out { background: rgba(34,211,165,0.1); color: var(--accent3); }
+  .cell-num { color: var(--text-dim); margin-left: auto; }
+
+  .code-block {
+    background: var(--code-bg);
+    padding: 18px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.5px;
+    line-height: 1.65;
+    overflow-x: auto;
+  }
+  .code-block pre { white-space: pre; }
+
+  /* SYNTAX COLORS */
+  .kw { color: #c792ea; } /* keyword */
+  .fn { color: #82aaff; } /* function */
+  .str { color: #c3e88d; } /* string */
+  .num { color: #f78c6c; } /* number */
+  .cm { color: #546e7a; font-style: italic; } /* comment */
+  .op { color: #89ddff; } /* operator/punctuation */
+  .var { color: #eeffff; } /* variable */
+  .attr { color: #ffcb6b; } /* attribute */
+
+  /* OUTPUT */
+  .output-block {
+    background: var(--output-bg);
+    padding: 14px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: #9ba8c8;
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .output-block.text { color: #c3e5e0; }
+
+  /* TABLE */
+  .df-table-wrap {
+    border-top: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  th {
+    background: var(--surface2);
+    padding: 8px 14px; text-align: right;
+    color: var(--text-muted); font-weight: 500;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  th:first-child { text-align: left; }
+  td {
+    padding: 7px 14px; text-align: right;
+    color: var(--text-muted);
+    border-bottom: 1px solid rgba(46,51,71,0.5);
+    border-right: 1px solid rgba(46,51,71,0.3);
+  }
+  td:first-child { text-align: left; color: var(--accent3); font-weight: 500; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .anomaly { color: var(--red) !important; }
+  .good { color: var(--green) !important; }
+
+  /* INSIGHT BOX */
+  .insight {
+    background: rgba(240,165,0,0.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+  .insight strong { color: var(--accent); }
+
+  .info-box {
+    background: rgba(59,130,246,0.06);
+    border-left: 3px solid var(--accent2);
+    border-radius: 0 8px 8px 0;
+    padding: 14px 18px;
+    margin: 16px 0;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  /* EXPLANATION CARD */
+  .explain-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin: 8px 0 24px;
+  }
+  .explain-card p { margin-bottom: 10px; }
+  .explain-card p:last-child { margin-bottom: 0; }
+
+  /* MARKDOWN TABLE */
+  .md-table {
+    width: 100%; border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+  .md-table th {
+    background: var(--surface2);
+    padding: 10px 16px;
+    text-align: left;
+    color: var(--text);
+    font-weight: 500;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+  }
+  .md-table td {
+    padding: 9px 16px;
+    text-align: left;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(46,51,71,0.5);
+  }
+  .md-table td:first-child { color: var(--text); }
+  .md-table tr:last-child td { border-bottom: none; }
+  code {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 7px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: #ffcb6b;
+  }
+
+  /* PIE CHART SVG */
+  .chart-wrap {
+    display: flex; justify-content: center;
+    border-top: 1px solid var(--border);
+    padding: 24px;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 40px 0;
+  }
+
+  /* SUMMARY BOX */
+  .summary {
+    background: var(--surface);
+    border: 1px solid rgba(34,211,165,0.2);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 40px;
+  }
+  .summary h3 { color: var(--accent3); margin-top: 0; }
+  .summary ul { list-style: none; padding: 0; }
+  .summary li {
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 14px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .summary li:last-child { border-bottom: none; }
+  .summary li::before {
+    content: '✓'; color: var(--accent3);
+    font-weight: 600; flex-shrink: 0; margin-top: 1px;
+  }
+
+  /* FOOTER */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 2rem;
+    max-width: 860px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    color: var(--text-dim); font-size: 13px;
+  }
+  .next-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #000;
+    padding: 10px 20px; border-radius: 8px;
+    font-weight: 500; font-size: 14px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .next-btn:hover { opacity: 0.85; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* TOC */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+  .toc-title {
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-dim);
+    margin-bottom: 12px; font-weight: 500;
+  }
+  .toc ul { list-style: none; }
+  .toc li { padding: 5px 0; }
+  .toc a {
+    color: var(--text-muted); text-decoration: none;
+    font-size: 13.5px; display: flex; align-items: center; gap: 8px;
+    transition: color 0.2s;
+  }
+  .toc a:hover { color: var(--accent); }
+  .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-dim); min-width: 20px;
+  }
+
+  @media (max-width: 640px) {
+    .progress-steps { grid-template-columns: repeat(3, 1fr); }
+    .nav-pills { display: none; }
+    .footer { flex-direction: column; gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-brand">ML Учебник · Adidas 2026</a>
+  <div class="nav-pills">
+    <a href="#" class="nav-pill active">Урок 1</a>
+    <a href="#" class="nav-pill">Урок 2</a>
+    <a href="#" class="nav-pill">Урок 3</a>
+    <a href="#" class="nav-pill">Урок 4</a>
+    <a href="#" class="nav-pill">Урок 5</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="lesson-tag">Урок 1 из 5</div>
+  <h1>Загрузка и<br><em>разведка данных</em></h1>
+  <p class="hero-desc">
+    Первый шаг любого ML-проекта — понять с чем работаешь. Загружаем датасет Adidas Global Catalogue 2026 и проводим полную разведку: ищем аномалии, пропуски и паттерны.
+  </p>
+  <div class="meta-row">
+    <span class="meta-item"><span class="meta-icon">📦</span> 44,888 строк · 35 колонок</span>
+    <span class="meta-item"><span class="meta-icon">🌍</span> 10 стран</span>
+    <span class="meta-item"><span class="meta-icon">⏱</span> ~45 минут</span>
+    <span class="meta-item"><span class="meta-icon">🔧</span> pandas · matplotlib</span>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap" style="padding: 16px 24px;">
+  <div class="progress-steps">
+    <div class="step done"><span class="step-num">1</span>Загрузка</div>
+    <div class="step active"><span class="step-num">2</span>Очистка</div>
+    <div class="step"><span class="step-num">3</span>EDA</div>
+    <div class="step"><span class="step-num">4</span>Features</div>
+    <div class="step"><span class="step-num">5</span>Модели</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">Содержание урока</div>
+    <ul>
+      <li><a href="#setup"><span class="toc-num">01</span>Настройка окружения</a></li>
+      <li><a href="#dataframe"><span class="toc-num">02</span>Что такое DataFrame</a></li>
+      <li><a href="#load"><span class="toc-num">03</span>Загрузка данных — read_csv</a></li>
+      <li><a href="#describe"><span class="toc-num">04</span>Первичная статистика — describe()</a></li>
+      <li><a href="#missing"><span class="toc-num">05</span>Анализ пропусков — isnull()</a></li>
+      <li><a href="#tools"><span class="toc-num">06</span>Инструменты разведки данных</a></li>
+      <li><a href="#summary"><span class="toc-num">07</span>Итоги урока</a></li>
+    </ul>
+  </div>
+
+  <!-- SECTION 1: SETUP -->
+  <div class="section" id="setup">
+    <h2><span class="anchor">#01</span>Настройка окружения</h2>
+    <div class="explain-card">
+      <p>Перед началом работы нужно создать виртуальное окружение и установить библиотеки. Виртуальное окружение изолирует зависимости проекта от системного Python.</p>
+    </div>
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">bash</span>
+        <span>Терминал</span>
+      </div>
+      <div class="code-block"><pre><span class="cm"># 1. Создание виртуального окружения</span>
+<span class="var">cd</span> E:\ML_edu
+<span class="var">python</span> <span class="op">-m</span> venv .venv
+
+<span class="cm"># 2. Активация</span>
+.venv\Scripts\activate
+
+<span class="cm"># 3. Установка библиотек</span>
+<span class="var">pip</span> install pandas numpy matplotlib seaborn scikit-learn ipykernel
+
+<span class="cm"># 4. Регистрация ядра для Jupyter</span>
+<span class="var">python</span> <span class="op">-m</span> ipykernel install <span class="op">--user</span> <span class="op">--name</span> ml_edu <span class="op">--display-name</span> <span class="str">"ML Edu (Python 3.13)"</span></pre></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: DATAFRAME -->
+  <div class="section" id="dataframe">
+    <h2><span class="anchor">#02</span>Что такое DataFrame</h2>
+    <div class="explain-card">
+      <p><code>DataFrame</code> — это главный объект библиотеки pandas. Думай о нём как об умной таблице: строки, колонки, индексы. Всё что можно делать в Excel — можно делать с DataFrame, только быстрее и на миллионах строк.</p>
+      <p>После строки <code>df = pd.read_csv("Adidas_Global.csv", low_memory=False)</code> переменная <code>df</code> содержит всю таблицу в памяти. <code>df</code> — просто имя переменной, принятое в data science сообществе.</p>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">Схема</span>
+        <span>Структура DataFrame</span>
+      </div>
+      <div class="code-block"><pre>         product_name   country_code   price_local   rating
+<span class="num">0</span>        Stan Smith     US             <span class="num">80.0</span>          <span class="num">4.8</span>
+<span class="num">1</span>        Ultraboost     DE             <span class="num">180.0</span>         <span class="num">4.9</span>
+<span class="num">2</span>        Gazelle        FR             <span class="num">100.0</span>         <span class="num">NaN</span>   <span class="cm">← пропуск</span>
+...
+<span class="num">44887</span>    Campus         MX             <span class="num">1799.0</span>        <span class="num">4.7</span>
+<span class="cm">
+↑ индекс    ↑ колонки                            ↑ значения</span></pre></div>
+    </div>
+
+    <h3>Основные операции</h3>
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">Python</span>
+        <span>Шпаргалка по DataFrame</span>
+      </div>
+      <div class="code-block"><pre><span class="cm"># Размер таблицы</span>
+<span class="fn">df</span>.shape          <span class="cm"># (44888, 35) — кортеж (строки, колонки)</span>
+<span class="fn">df</span>.shape[<span class="num">0</span>]       <span class="cm"># 44888 — только строки</span>
+<span class="fn">len</span>(df)           <span class="cm"># 44888 — тоже количество строк</span>
+
+<span class="cm"># Просмотр данных</span>
+<span class="fn">df</span>.head()         <span class="cm"># первые 5 строк</span>
+<span class="fn">df</span>.tail()         <span class="cm"># последние 5 строк</span>
+<span class="fn">df</span>.sample(<span class="num">5</span>)      <span class="cm"># 5 случайных строк</span>
+
+<span class="cm"># Выбор данных</span>
+<span class="fn">df</span>[<span class="str">'price_local'</span>]                    <span class="cm"># одна колонка → Series</span>
+<span class="fn">df</span>[[<span class="str">'product_name'</span>, <span class="str">'price_local'</span>]]  <span class="cm"># несколько → DataFrame</span>
+
+<span class="cm"># Фильтрация строк</span>
+<span class="fn">df</span>[<span class="fn">df</span>[<span class="str">'country_code'</span>] <span class="op">==</span> <span class="str">'US'</span>]           <span class="cm"># только США</span>
+<span class="fn">df</span>[<span class="fn">df</span>[<span class="str">'discount_pct'</span>] <span class="op">></span> <span class="num">0</span>]             <span class="cm"># товары со скидкой</span>
+<span class="fn">df</span>[(<span class="fn">df</span>[<span class="str">'country_code'</span>] <span class="op">==</span> <span class="str">'US'</span>) <span class="op">&</span> (<span class="fn">df</span>[<span class="str">'price_local'</span>] <span class="op">></span> <span class="num">100</span>)]
+
+<span class="cm"># Главное правило: df не меняется без явного присваивания</span>
+df_us <span class="op">=</span> <span class="fn">df</span>[<span class="fn">df</span>[<span class="str">'country_code'</span>] <span class="op">==</span> <span class="str">'US'</span>].copy()</pre></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: LOAD -->
+  <div class="section" id="load">
+    <h2><span class="anchor">#03</span>Загрузка данных</h2>
+
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">In [1]</span>
+        <span>Импорт библиотек</span>
+      </div>
+      <div class="code-block"><pre><span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="attr">pd</span>
+<span class="kw">import</span> <span class="var">numpy</span> <span class="kw">as</span> <span class="attr">np</span>
+<span class="kw">import</span> <span class="var">matplotlib.pyplot</span> <span class="kw">as</span> <span class="attr">plt</span>
+<span class="kw">import</span> <span class="var">os</span></pre></div>
+    </div>
+
+    <div class="explain-card">
+      <p><strong>pandas</strong> — главная библиотека для работы с таблицами. <code>pd</code> — короткое прозвище, чтобы не писать pandas каждый раз.</p>
+      <p><strong>numpy</strong> — математика и массивы, pandas использует его внутри себя.</p>
+      <p>Параметр <code>low_memory=False</code> при загрузке CSV говорит pandas: <em>читай файл целиком и определяй типы данных точно</em>, а не кусками.</p>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">In [2]</span>
+        <span>Загрузка файла</span>
+      </div>
+      <div class="code-block"><pre>df <span class="op">=</span> pd.<span class="fn">read_csv</span>(<span class="str">"Adidas_Global.csv"</span>, low_memory<span class="op">=</span><span class="kw">False</span>)
+
+<span class="fn">print</span>(<span class="str">f"Строк: {df.shape[0]:,}"</span>)
+<span class="fn">print</span>(<span class="str">f"Колонок: {df.shape[1]}"</span>)
+df.<span class="fn">head</span>()</pre></div>
+      <div class="output-block text">Строк: 44,888
+Колонок: 35</div>
+      <div class="df-table-wrap">
+        <table>
+          <tr><th></th><th>snapshot_date</th><th>country_code</th><th>product_name</th><th>model_number</th><th>currency</th><th>price_local</th><th>sale_price_local</th><th>category</th><th>rating_count</th></tr>
+          <tr><td>0</td><td>2026-03-09</td><td>BR</td><td>AGASALHO COM CAPUZ BIG LOGO</td><td>KSG46</td><td>BRL</td><td>429.99</td><td>549.99</td><td>Lifestyle</td><td class="anomaly">-99.0</td></tr>
+          <tr><td>1</td><td>2026-03-09</td><td>BR</td><td>AGASALHO COM CAPUZ BIG LOGO</td><td>KSG46</td><td>BRL</td><td>429.99</td><td>549.99</td><td>Lifestyle</td><td class="anomaly">-99.0</td></tr>
+          <tr><td>2</td><td>2026-03-09</td><td>BR</td><td>AGASALHO COM CAPUZ BIG LOGO</td><td>KSG46</td><td>BRL</td><td>429.99</td><td>549.99</td><td>Lifestyle</td><td class="anomaly">-99.0</td></tr>
+          <tr><td>3</td><td>2026-03-09</td><td>BR</td><td>AGASALHO COM CAPUZ BIG LOGO</td><td>KSG46</td><td>BRL</td><td>429.99</td><td>549.99</td><td>Lifestyle</td><td class="anomaly">-99.0</td></tr>
+          <tr><td>4</td><td>2026-03-09</td><td>BR</td><td>AGASALHO COM CAPUZ BIG LOGO</td><td>KSG46</td><td>BRL</td><td>429.99</td><td>549.99</td><td>Lifestyle</td><td class="anomaly">-99.0</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="insight"><strong>Обрати внимание:</strong> первые 5 строк — это один и тот же товар в разных размерах. Каждая строка = 1 SKU. <code>rating_count = -99.0</code> — это уже первая аномалия.</div>
+  </div>
+
+  <!-- SECTION 4: DESCRIBE -->
+  <div class="section" id="describe">
+    <h2><span class="anchor">#04</span>Первичная статистика — describe()</h2>
+
+    <div class="explain-card">
+      <p><code>describe()</code> — «паспорт» числовых колонок. Каждая строка говорит тебе что-то конкретное: <strong>count</strong> — сколько непустых значений, <strong>mean</strong> — среднее, <strong>std</strong> — разброс, <strong>50%</strong> — медиана (середина данных).</p>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">In [4]</span>
+        <span>df.describe()</span>
+        <span class="cell-num"></span>
+      </div>
+      <div class="code-block"><pre>df.<span class="fn">describe</span>()</pre></div>
+      <div class="df-table-wrap">
+        <table>
+          <tr><th></th><th>price_local</th><th>sale_price_local</th><th>discount_pct</th><th>rating</th><th>rating_count</th></tr>
+          <tr><td>count</td><td class="good">44,888</td><td>25,970</td><td>30,874</td><td>17,421</td><td>25,747</td></tr>
+          <tr><td>mean</td><td>13,655.55</td><td>14,437.64</td><td>5.16</td><td>4.68</td><td>339.44</td></tr>
+          <tr><td>std</td><td>43,890.05</td><td>42,114.24</td><td>13.58</td><td>0.37</td><td>1,919.07</td></tr>
+          <tr><td>min</td><td>6.00</td><td>6.00</td><td class="anomaly">-45.00</td><td>1.00</td><td class="anomaly">-99.00</td></tr>
+          <tr><td>25%</td><td>100.00</td><td>199.99</td><td>0.00</td><td>4.63</td><td class="anomaly">-99.00</td></tr>
+          <tr><td>50%</td><td>599.99</td><td>1,799.00</td><td>0.00</td><td>4.74</td><td>13.00</td></tr>
+          <tr><td>75%</td><td>9,999.00</td><td>10,999.00</td><td>0.00</td><td>4.86</td><td>97.00</td></tr>
+          <tr><td>max</td><td>599,000.00</td><td>599,000.00</td><td>60.00</td><td>5.00</td><td>19,686.00</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="explain-card">
+      <p><strong>Что читаем в этой таблице:</strong></p>
+      <p>• <code>price_local</code>: медиана (50%) = 599.99, среднее = 13,655 — огромный разброс объясняется разными валютами (JPY, KRW, INR). Всегда смотри на медиану, не на среднее.</p>
+      <p>• <code>sale_price_local</code>: count = 25,970 из 44,888 — у ~42% строк скидки нет вообще (NaN).</p>
+      <p>• <code>discount_pct</code>: <span style="color:var(--red)">min = -45</span> — отрицательная скидка? Это аномалия, разберём при очистке.</p>
+      <p>• <code>rating_count</code>: <span style="color:var(--red)">min = -99</span> — технический маркер «нет данных» вместо NaN. Типичный «мусор» в реальных данных.</p>
+    </div>
+  </div>
+
+  <!-- SECTION 5: MISSING -->
+  <div class="section" id="missing">
+    <h2><span class="anchor">#05</span>Анализ пропусков</h2>
+
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">In [5]</span>
+        <span>df.isnull().sum()</span>
+      </div>
+      <div class="code-block"><pre>df.<span class="fn">isnull</span>().<span class="fn">sum</span>()</pre></div>
+    </div>
+
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">In [7]</span>
+        <span>Только значимые пропуски (>1%), отсортировано</span>
+      </div>
+      <div class="code-block"><pre><span class="cm"># Процент пропусков — отсортировано, только значимые (> 1%)</span>
+missing <span class="op">=</span> df.<span class="fn">isnull</span>().<span class="fn">sum</span>() <span class="op">/</span> <span class="fn">len</span>(df) <span class="op">*</span> <span class="num">100</span>
+missing <span class="op">=</span> missing[missing <span class="op">></span> <span class="num">1</span>].<span class="fn">sort_values</span>(ascending<span class="op">=</span><span class="kw">False</span>)
+missing</pre></div>
+      <div class="df-table-wrap">
+        <table>
+          <tr><th>Колонка</th><th>% пропусков</th></tr>
+          <tr><td>color_name</td><td class="anomaly">89.88%</td></tr>
+          <tr><td>badge_texts</td><td class="anomaly">75.32%</td></tr>
+          <tr><td>rating</td><td class="anomaly">61.19%</td></tr>
+          <tr><td>rating_count</td><td style="color:var(--yellow)">42.64%</td></tr>
+          <tr><td>sale_price_local</td><td style="color:var(--yellow)">42.14%</td></tr>
+          <tr><td>subcategory</td><td style="color:var(--yellow)">33.65%</td></tr>
+          <tr><td>discount_pct</td><td style="color:var(--yellow)">31.22%</td></tr>
+          <tr><td>in_stock</td><td>5.38%</td></tr>
+          <tr><td>available_size_count</td><td>5.38%</td></tr>
+          <tr><td>category</td><td>1.15%</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="explain-card">
+      <p><strong>Фильтрация и сортировка Series:</strong></p>
+      <p>• <code>df.isnull().sum() / len(df) * 100</code> — считает процент пропусков по каждой колонке</p>
+      <p>• <code>missing[missing > 1]</code> — фильтрация: оставить только колонки с пропусками больше 1%. Квадратные скобки с условием — один из главных приёмов pandas</p>
+      <p>• Порог 1% — практическое правило: меньше 1% пропусков не влияют на модель</p>
+      <p>• <code>.sort_values(ascending=False)</code> — сортировка по убыванию. <code>True</code> — наоборот</p>
+    </div>
+
+    <!-- PIE CHART (inline SVG) -->
+    <div class="cell">
+      <div class="cell-header">
+        <span class="cell-type code">In [8]</span>
+        <span>Визуализация колонок с пропусками > 31%</span>
+      </div>
+      <div class="code-block"><pre><span class="kw">import</span> <span class="var">matplotlib.pyplot</span> <span class="kw">as</span> <span class="attr">plt</span>
+
+missing_critical <span class="op">=</span> missing[missing <span class="op">></span> <span class="num">31</span>].<span class="fn">sort_values</span>(ascending<span class="op">=</span><span class="kw">False</span>)
+
+plt.<span class="fn">figure</span>(figsize<span class="op">=</span>(<span class="num">8</span>, <span class="num">8</span>))
+plt.<span class="fn">pie</span>(missing_critical, labels<span class="op">=</span>missing_critical.index, autopct<span class="op">=</span><span class="str">'%1.1f%%'</span>, startangle<span class="op">=</span><span class="num">140</span>)
+plt.<span class="fn">title</span>(<span class="str">'Колонки с пропусками > 31%'</span>)
+plt.<span class="fn">show</span>()</pre></div>
+      <div class="chart-wrap">
+        <svg width="360" height="360" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+          <!-- Manual pie chart: color_name 89.9→23.9%, badge_texts 75.3→20%, rating 61.2→16.3%, rating_count 42.6→11.3%, sale_price_local 42.1→11.2%, subcategory 33.6→8.9%, discount_pct 31.2→8.3% -->
+          <!-- Total = 375.9, so percentages: -->
+          <!-- color_name: 89.9/375.9*360 = 86.1deg -->
+          <!-- badge_texts: 75.3/375.9*360 = 72.1deg -->
+          <!-- rating: 61.2/375.9*360 = 58.6deg -->
+          <!-- rating_count: 42.6/375.9*360 = 40.8deg -->
+          <!-- sale_price_local: 42.1/375.9*360 = 40.3deg -->
+          <!-- subcategory: 33.6/375.9*360 = 32.2deg -->
+          <!-- discount_pct: 31.2/375.9*360 = 29.9deg -->
+          <g transform="translate(180,180)">
+            <!-- color_name: 0 → 86.1 -->
+            <path d="M0,0 L0,-145 A145,145 0 0,1 144.1,-14.9 Z" fill="#3b82f6" opacity="0.85"/>
+            <!-- badge_texts: 86.1 → 158.2 -->
+            <path d="M0,0 L144.1,-14.9 A145,145 0 0,1 58.6,130.1 Z" fill="#f0a500" opacity="0.85"/>
+            <!-- rating: 158.2 → 216.8 -->
+            <path d="M0,0 L58.6,130.1 A145,145 0 0,1 -116.5,84.7 Z" fill="#22d3a5" opacity="0.85"/>
+            <!-- rating_count: 216.8 → 257.6 -->
+            <path d="M0,0 L-116.5,84.7 A145,145 0 0,1 -141.5,-31.4 Z" fill="#f87171" opacity="0.85"/>
+            <!-- sale_price_local: 257.6 → 297.9 -->
+            <path d="M0,0 L-141.5,-31.4 A145,145 0 0,1 -66.8,-128.3 Z" fill="#c792ea" opacity="0.85"/>
+            <!-- subcategory: 297.9 → 330.1 -->
+            <path d="M0,0 L-66.8,-128.3 A145,145 0 0,1 12.5,-144.5 Z" fill="#fbbf24" opacity="0.85"/>
+            <!-- discount_pct: 330.1 → 360 -->
+            <path d="M0,0 L12.5,-144.5 A145,145 0 0,1 0,-145 Z" fill="#4ade80" opacity="0.85"/>
+          </g>
+          <!-- Labels -->
+          <text x="240" y="100" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">color_name 23.9%</text>
+          <text x="240" y="180" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">badge_texts 20.0%</text>
+          <text x="60" y="310" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">rating 16.3%</text>
+          <text x="20" y="200" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">rating_count 11.3%</text>
+          <text x="50" y="120" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">sale_price 11.2%</text>
+          <text x="120" y="42" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">subcategory 8.9%</text>
+          <text x="185" y="42" fill="#e2e4f0" font-size="11" font-family="JetBrains Mono, monospace">discount 8.3%</text>
+        </svg>
+      </div>
+    </div>
+
+    <table class="md-table" style="margin-top:16px;">
+      <tr><th>Колонка</th><th>% пропусков</th><th>Решение</th></tr>
+      <tr><td><code>color_name</code></td><td style="color:var(--red)">89.9%</td><td>Удалить — 90% пустых</td></tr>
+      <tr><td><code>badge_texts</code></td><td style="color:var(--red)">75.3%</td><td>Удалить — маркетинговые теги</td></tr>
+      <tr><td><code>rating</code></td><td style="color:var(--yellow)">61.2%</td><td>Оставить, заполнить NaN → 0</td></tr>
+      <tr><td><code>rating_count</code></td><td style="color:var(--yellow)">42.6%</td><td>Оставить, заполнить NaN → 0</td></tr>
+      <tr><td><code>sale_price_local</code></td><td style="color:var(--yellow)">42.1%</td><td>NaN = нет скидки → заполнить 0</td></tr>
+      <tr><td><code>subcategory</code></td><td>33.6%</td><td>Заполнить из <code>category</code></td></tr>
+      <tr><td><code>discount_pct</code></td><td>31.2%</td><td>NaN = нет скидки → заполнить 0</td></tr>
+    </table>
+
+    <div class="insight"><strong>Правило выбора стратегии:</strong> пропусков &gt;70% → удалить колонку. Пропуски имеют смысл (нет скидки, нет отзывов) → заполнить 0. Пропуски случайные → заполнить медианой или модой.</div>
+  </div>
+
+  <!-- SECTION 6: TOOLS -->
+  <div class="section" id="tools">
+    <h2><span class="anchor">#06</span>Инструменты разведки данных</h2>
+
+    <div class="explain-card">
+      <p>Полный арсенал методов для первичного понимания датафрейма. Запускай по очереди на каждом новом датасете.</p>
+    </div>
+
+    <!-- dtypes -->
+    <h3>Типы данных — df.dtypes</h3>
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">In [9]</span><span>df.dtypes</span></div>
+      <div class="code-block"><pre>df.<span class="fn">dtypes</span></pre></div>
+    </div>
+    <table class="md-table">
+      <tr><th>Тип</th><th>Что означает</th><th>Примеры</th></tr>
+      <tr><td><code>str</code> (object)</td><td>Текст или смешанные данные</td><td>product_name, country_code, category</td></tr>
+      <tr><td><code>float64</code></td><td>Дробное число (64-бит)</td><td>price_local, rating, discount_pct</td></tr>
+      <tr><td><code>int64</code></td><td>Целое число (64-бит)</td><td>size_count, seen_market_count</td></tr>
+    </table>
+    <div class="info-box">
+      <strong style="color:var(--accent2)">Требует внимания:</strong> <code>snapshot_date → str</code> — дата как текст, нужно <code>pd.to_datetime()</code>. <code>in_stock → object</code> — смешанные типы, нужна очистка. <code>available_size_count → float64</code> — целое число стало дробным из-за NaN.
+    </div>
+
+    <!-- nunique -->
+    <h3>Уникальные значения — df.nunique()</h3>
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">In [10]</span><span>df.nunique()</span></div>
+      <div class="code-block"><pre>df.<span class="fn">nunique</span>()</pre></div>
+    </div>
+    <table class="md-table">
+      <tr><th>Уникальных значений</th><th>Тип</th><th>Действие</th></tr>
+      <tr><td>1</td><td>Константа</td><td>Удалить (brand_name = всегда "adidas")</td></tr>
+      <tr><td>2–50</td><td>Категориальный</td><td>Закодировать (get_dummies)</td></tr>
+      <tr><td>50–1000</td><td>Числовой или текст</td><td>Анализировать отдельно</td></tr>
+      <tr><td>&gt; 1000</td><td>Идентификатор</td><td>Не использовать как признак</td></tr>
+    </table>
+
+    <!-- value_counts -->
+    <h3>Распределение — df['country_code'].value_counts()</h3>
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">In [11]</span><span>Страны</span></div>
+      <div class="code-block"><pre>df[<span class="str">'country_code'</span>].<span class="fn">value_counts</span>()</pre></div>
+      <div class="df-table-wrap">
+        <table>
+          <tr><th>Страна</th><th>Строк (SKU)</th><th>Доля</th></tr>
+          <tr><td>IN (Индия)</td><td>6,643</td><td>14.8%</td></tr>
+          <tr><td>JP (Япония)</td><td>6,037</td><td>13.5%</td></tr>
+          <tr><td>US (США)</td><td>5,746</td><td>12.8%</td></tr>
+          <tr><td>DE (Германия)</td><td>5,004</td><td>11.1%</td></tr>
+          <tr><td>MX (Мексика)</td><td>4,992</td><td>11.1%</td></tr>
+          <tr><td>BR (Бразилия)</td><td>4,680</td><td>10.4%</td></tr>
+          <tr><td>GB (Великобритания)</td><td>4,283</td><td>9.5%</td></tr>
+          <tr><td>FR (Франция)</td><td>4,061</td><td>9.1%</td></tr>
+          <tr><td>KR (Южная Корея)</td><td>2,538</td><td>5.7%</td></tr>
+          <tr><td style="color:var(--red)">CN (Китай)</td><td style="color:var(--red)">904</td><td style="color:var(--red)">2.0%</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="insight"><strong>Selection bias:</strong> Китай — всего 904 строки (2%), в 7 раз меньше Индии. Причина — закрытая экосистема (WeChat, Tmall). Это называется selection bias — выборка нерепрезентативна для CN.</div>
+
+    <!-- duplicated -->
+    <h3>Дубликаты — df.duplicated()</h3>
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">In [17]</span><span>Полные дубли</span></div>
+      <div class="code-block"><pre>df.<span class="fn">duplicated</span>().<span class="fn">sum</span>()  <span class="cm"># → 0</span>
+
+<span class="cm"># Дубли на уровне товара</span>
+df.<span class="fn">duplicated</span>(subset<span class="op">=</span>[<span class="str">'country_code'</span>, <span class="str">'model_number'</span>]).<span class="fn">sum</span>()  <span class="cm"># → 42,898</span>
+
+<span class="cm"># Создаём датафрейм уровня товаров</span>
+df_products <span class="op">=</span> df.<span class="fn">drop_duplicates</span>(subset<span class="op">=</span>[<span class="str">'country_code'</span>, <span class="str">'model_number'</span>]).<span class="fn">copy</span>()
+<span class="fn">print</span>(<span class="str">f"Уровень SKU:     {len(df):,} строк"</span>)
+<span class="fn">print</span>(<span class="str">f"Уровень товаров: {len(df_products):,} строк"</span>)</pre></div>
+      <div class="output-block text">Уровень SKU:     44,888 строк
+Уровень товаров: 1,990 строк</div>
+    </div>
+    <div class="insight"><strong>44,888 → 1,990 уникальных товаров.</strong> Один кроссовок существует в 12 размерах → 12 строк, но это один товар. Отсюда два датафрейма: <code>df</code> — для анализа размеров, <code>df_products</code> — для всего остального.</div>
+
+    <!-- corr -->
+    <h3>Корреляция — df.corr()</h3>
+    <div class="cell">
+      <div class="cell-header"><span class="cell-type code">In [27]</span><span>Матрица корреляций</span></div>
+      <div class="code-block"><pre>df.<span class="fn">corr</span>(numeric_only<span class="op">=</span><span class="kw">True</span>).<span class="fn">round</span>(<span class="num">2</span>)</pre></div>
+      <div class="df-table-wrap">
+        <table>
+          <tr><th></th><th>price_local</th><th>sale_price_local</th><th>discount_pct</th><th>rating</th><th>size_count</th><th>avail_size_count</th></tr>
+          <tr><td>price_local</td><td class="good">1.00</td><td class="good">1.00</td><td>-0.12</td><td>0.01</td><td>-0.06</td><td>-0.08</td></tr>
+          <tr><td>sale_price_local</td><td class="good">1.00</td><td class="good">1.00</td><td>-0.14</td><td>0.01</td><td>-0.05</td><td>-0.03</td></tr>
+          <tr><td>discount_pct</td><td>-0.12</td><td>-0.14</td><td>1.00</td><td>-0.02</td><td>0.06</td><td>-0.18</td></tr>
+          <tr><td>rating</td><td>0.01</td><td>0.01</td><td>-0.02</td><td>1.00</td><td>-0.05</td><td>-0.04</td></tr>
+          <tr><td>size_count</td><td>-0.06</td><td>-0.05</td><td>0.06</td><td>-0.05</td><td>1.00</td><td style="color:var(--yellow)">0.53</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="explain-card">
+      <p>• <strong>price_local ↔ sale_price_local = 1.00</strong> — идеальная корреляция. В модели держать обе нет смысла — это мультиколлинеарность.</p>
+      <p>• <strong>size_count ↔ available_size_count = 0.53</strong> — умеренная связь: чем больше размеров у товара, тем больше из них в наличии.</p>
+      <p>• <strong>rating ↔ всё ≈ 0</strong> — рейтинг не связан с ценой и скидкой. Живёт отдельно.</p>
+    </div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="section" id="summary">
+    <h2><span class="anchor">#07</span>Итоги урока</h2>
+    <div class="summary">
+      <h3>Что мы узнали о датасете</h3>
+      <ul>
+        <li>44,888 строк = SKU (один размер одного товара), 1,990 уникальных моделей по 10 странам</li>
+        <li>Аномалии: <code>rating_count = -99</code> как замена NaN, отрицательные значения <code>discount_pct</code></li>
+        <li><code>color_name</code> (90%) и <code>badge_texts</code> (75%) — кандидаты на удаление</li>
+        <li><code>brand_name</code> и <code>in_stock</code> — константы, бесполезны как признаки</li>
+        <li><code>price_local</code> и <code>sale_price_local</code> = идеальная корреляция (мультиколлинеарность)</li>
+        <li><code>category</code> на 6 языках (53 уникальных значения) — требует нормализации</li>
+        <li>Китай — selection bias: всего 904 строки (2%), закрытая экосистема</li>
+      </ul>
+    </div>
+
+    <table class="md-table" style="margin-top:24px;">
+      <tr><th>Метод</th><th>Когда использую</th></tr>
+      <tr><td><code>isnull().sum()</code></td><td>Первый взгляд — где дыры</td></tr>
+      <tr><td><code>isnull().sum() / len(df) * 100</code></td><td>Когда нужен процент, а не count</td></tr>
+      <tr><td><code>nunique()</code></td><td>Понять какие колонки категориальные</td></tr>
+      <tr><td><code>value_counts()</code></td><td>Распределение конкретной колонки</td></tr>
+      <tr><td><code>duplicated().sum()</code></td><td>Перед дедупликацией</td></tr>
+      <tr><td><code>sample(5)</code></td><td>Когда head() кажется "слишком аккуратным"</td></tr>
+      <tr><td><code>corr()</code></td><td>Перед выбором признаков для модели</td></tr>
+      <tr><td><code>isnull().any(axis=1)</code></td><td>Найти все "грязные" строки сразу</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer" style="max-width:860px; margin:0 auto; padding:40px 2rem;">
+  <span>Урок 1 из 5 · ML Учебник · Adidas 2026</span>
+  <a href="#" class="next-btn">Урок 2: Очистка данных →</a>
+</div>
+
+<script>
+  // Smooth scroll for TOC
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+
+  // Intersection Observer for section highlights
+  const sections = document.querySelectorAll('.section');
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.style.opacity = '1';
+    });
+  }, { threshold: 0.1 });
+  sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
