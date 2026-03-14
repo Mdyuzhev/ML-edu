@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Учебник — Adidas Global Catalogue 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0d14;
+    --surface: #12151f;
+    --surface2: #1a1e2e;
+    --border: #252a3d;
+    --accent: #f0a500;
+    --accent2: #3b82f6;
+    --accent3: #22d3a5;
+    --accent4: #f472b6;
+    --text: #e2e4f0;
+    --text-muted: #7a7f9a;
+    --text-dim: #3d425a;
+    --code: #ffcb6b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRID BACKGROUND ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(240,165,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,165,0,0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+  }
+
+  /* ─── NAV ─── */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(11,13,20,0.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    height: 56px;
+    display: flex; align-items: center;
+    padding: 0 clamp(1.5rem, 5vw, 4rem);
+    justify-content: space-between;
+  }
+  .nav-brand {
+    font-family: 'Fraunces', serif;
+    font-size: 1rem; font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-brand::before {
+    content: '';
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+    animation: blink 2.5s infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a {
+    color: var(--text-muted); text-decoration: none;
+    font-size: 13.5px; font-weight: 400;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); }
+
+  /* ─── HERO ─── */
+  .hero {
+    position: relative; z-index: 1;
+    padding: clamp(100px, 15vw, 160px) clamp(1.5rem, 5vw, 4rem) 80px;
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; font-weight: 500;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--accent3);
+    margin-bottom: 28px;
+  }
+  .eyebrow::before {
+    content: '//';
+    color: var(--text-dim);
+  }
+
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    font-weight: 700;
+    line-height: 1.06;
+    color: #fff;
+    letter-spacing: -0.03em;
+    margin-bottom: 28px;
+    max-width: 800px;
+  }
+  h1 .dim { color: var(--text-dim); font-weight: 300; }
+  h1 .accent { color: var(--accent); font-style: italic; }
+
+  .hero-desc {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--text-muted);
+    max-width: 560px;
+    line-height: 1.65;
+    margin-bottom: 48px;
+  }
+
+  .hero-stats {
+    display: flex; gap: 40px; flex-wrap: wrap;
+    margin-bottom: 60px;
+  }
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Fraunces', serif;
+    font-size: 2.2rem; font-weight: 600;
+    color: #fff; line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-label {
+    font-size: 12px; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* ─── DATASET BADGE ─── */
+  .dataset-badge {
+    display: inline-flex; align-items: center; gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 80px;
+  }
+  .dataset-badge .tag {
+    background: rgba(240,165,0,0.12);
+    border: 1px solid rgba(240,165,0,0.2);
+    color: var(--accent);
+    padding: 2px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+
+  /* ─── SECTION HEADER ─── */
+  .section-header {
+    display: flex; align-items: baseline; gap: 16px;
+    margin-bottom: 32px;
+  }
+  .section-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.8rem; font-weight: 600;
+    color: #fff; letter-spacing: -0.02em;
+  }
+  .section-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+  }
+
+  /* ─── LESSONS GRID ─── */
+  .lessons-section {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem) 100px;
+  }
+
+  .lessons-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+
+  .lesson-card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.25s, transform 0.25s;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    min-height: 220px;
+  }
+  .lesson-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .lesson-card:hover {
+    border-color: var(--card-accent, var(--accent));
+    transform: translateY(-3px);
+  }
+  .lesson-card:hover::before { opacity: 1; }
+
+  /* Status variations */
+  .lesson-card.done { --card-accent: var(--accent3); }
+  .lesson-card.active { --card-accent: var(--accent); }
+  .lesson-card.soon { --card-accent: var(--text-dim); opacity: 0.6; pointer-events: none; }
+
+  .card-top {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 20px;
+  }
+  .lesson-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+  .status-badge {
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .status-done {
+    background: rgba(34,211,165,0.1);
+    border: 1px solid rgba(34,211,165,0.25);
+    color: var(--accent3);
+  }
+  .status-active {
+    background: rgba(240,165,0,0.1);
+    border: 1px solid rgba(240,165,0,0.25);
+    color: var(--accent);
+  }
+  .status-soon {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+  }
+
+  .card-title {
+    font-family: 'Fraunces', serif;
+    font-size: 1.3rem; font-weight: 600;
+    color: #fff; line-height: 1.2;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .card-desc {
+    font-size: 13.5px; color: var(--text-muted);
+    line-height: 1.55; flex: 1;
+    margin-bottom: 20px;
+  }
+
+  .card-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: auto;
+  }
+  .card-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px; color: var(--text-dim);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .lesson-card:hover .card-tag {
+    color: var(--text-muted);
+    border-color: rgba(255,255,255,0.1);
+  }
+
+  /* ─── BIG CARD (Урок 1) ─── */
+  .lesson-card.featured {
+    grid-column: span 2;
+    min-height: 260px;
+    background: linear-gradient(135deg, var(--surface) 0%, rgba(34,211,165,0.04) 100%);
+    border-color: rgba(34,211,165,0.2);
+  }
+  .lesson-card.featured .card-title { font-size: 1.7rem; }
+  .lesson-card.featured .card-desc { font-size: 14.5px; max-width: 480px; }
+  .card-arrow {
+    position: absolute; bottom: 28px; right: 28px;
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid rgba(34,211,165,0.25);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent3); font-size: 16px;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .lesson-card:hover .card-arrow {
+    background: rgba(34,211,165,0.1);
+    transform: translate(2px, -2px);
+  }
+
+  /* ─── STACK SECTION ─── */
+  .stack-section {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem) 100px;
+  }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .stack-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+  .stack-item:hover { border-color: rgba(255,255,255,0.1); }
+  .stack-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px; color: var(--text);
+    font-weight: 500; margin-bottom: 4px;
+  }
+  .stack-role { font-size: 12px; color: var(--text-dim); }
+
+  /* ─── ROADMAP ─── */
+  .roadmap-section {
+    position: relative; z-index: 1;
+    max-width: 1100px; margin: 0 auto;
+    padding: 0 clamp(1.5rem, 5vw, 4rem) 120px;
+  }
+  .roadmap {
+    position: relative;
+    padding-left: 32px;
+  }
+  .roadmap::before {
+    content: '';
+    position: absolute; left: 7px; top: 8px; bottom: 8px;
+    width: 1px; background: var(--border);
+  }
+  .roadmap-item {
+    position: relative;
+    padding: 0 0 32px 24px;
+  }
+  .roadmap-item::before {
+    content: '';
+    position: absolute; left: -26px; top: 6px;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    transition: border-color 0.2s;
+  }
+  .roadmap-item.done::before { border-color: var(--accent3); background: rgba(34,211,165,0.15); }
+  .roadmap-item.active::before { border-color: var(--accent); background: rgba(240,165,0,0.15); }
+  .roadmap-item:last-child { padding-bottom: 0; }
+
+  .roadmap-title {
+    font-weight: 500; color: var(--text);
+    margin-bottom: 4px; font-size: 15px;
+  }
+  .roadmap-item.soon .roadmap-title { color: var(--text-dim); }
+  .roadmap-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+  /* ─── FOOTER ─── */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: clamp(24px, 4vw, 40px) clamp(1.5rem, 5vw, 4rem);
+    max-width: 1100px; margin: 0 auto;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .footer-note {
+    font-size: 12.5px; color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .footer-link {
+    font-size: 12.5px; color: var(--text-dim);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .footer-link:hover { color: var(--accent3); }
+
+  /* ─── ANIMATIONS ─── */
+  .fade-up {
+    opacity: 0; transform: translateY(24px);
+    animation: fadeUp 0.6s ease forwards;
+  }
+  .fade-up:nth-child(1) { animation-delay: 0.0s; }
+  .fade-up:nth-child(2) { animation-delay: 0.08s; }
+  .fade-up:nth-child(3) { animation-delay: 0.16s; }
+  .fade-up:nth-child(4) { animation-delay: 0.24s; }
+  .fade-up:nth-child(5) { animation-delay: 0.32s; }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── GLOW ─── */
+  .glow-orb {
+    position: fixed; pointer-events: none; z-index: 0;
+    width: 600px; height: 600px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(240,165,0,0.06) 0%, transparent 70%);
+    top: -200px; right: -100px;
+  }
+  .glow-orb-2 {
+    position: fixed; pointer-events: none; z-index: 0;
+    width: 400px; height: 400px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(34,211,165,0.05) 0%, transparent 70%);
+    bottom: 100px; left: -100px;
+  }
+
+  @media (max-width: 700px) {
+    .lesson-card.featured { grid-column: span 1; }
+    .hero-stats { gap: 24px; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="glow-orb"></div>
+<div class="glow-orb-2"></div>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="#" class="nav-brand">ML Учебник</a>
+  <div class="nav-links">
+    <a href="#lessons">Уроки</a>
+    <a href="#stack">Стек</a>
+    <a href="#roadmap">Прогресс</a>
+    <a href="https://github.com/Mdyuzhev/ML-edu" target="_blank">GitHub →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="eyebrow fade-up">ML · Data Science · Adidas 2026</div>
+  <h1 class="fade-up">
+    Учимся ML<br>
+    <span class="dim">на реальных</span><br>
+    <span class="accent">данных</span>
+  </h1>
+  <p class="hero-desc fade-up">
+    Полный путь от загрузки сырых данных до обученной модели. Каждый урок — работающий блокнот с пояснениями и визуализациями на настоящем датасете Adidas.
+  </p>
+  <div class="hero-stats fade-up">
+    <div class="stat">
+      <div class="stat-num">44k</div>
+      <div class="stat-label">строк данных</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">10</div>
+      <div class="stat-label">стран</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">5</div>
+      <div class="stat-label">уроков</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">35</div>
+      <div class="stat-label">признаков</div>
+    </div>
+  </div>
+  <div class="dataset-badge fade-up">
+    <span class="tag">Kaggle</span>
+    Adidas Global Catalogue 2026 · 10 countries · snapshot March 2026
+  </div>
+</section>
+
+<!-- LESSONS -->
+<section class="lessons-section" id="lessons">
+  <div class="section-header">
+    <span class="section-title">Уроки</span>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="lessons-grid">
+
+    <!-- Урок 1 — DONE -->
+    <a href="lesson_01.html" class="lesson-card featured done fade-up">
+      <div class="card-top">
+        <span class="lesson-num">Урок 01 / 05</span>
+        <span class="status-badge status-done">✓ готово</span>
+      </div>
+      <div class="card-title">Загрузка и разведка данных</div>
+      <div class="card-desc">
+        Загружаем датасет, изучаем структуру, находим аномалии и пропуски. Полный арсенал EDA-инструментов: describe, isnull, nunique, value_counts, corr.
+      </div>
+      <div class="card-tags">
+        <span class="card-tag">pandas</span>
+        <span class="card-tag">read_csv</span>
+        <span class="card-tag">describe()</span>
+        <span class="card-tag">isnull()</span>
+        <span class="card-tag">nunique()</span>
+        <span class="card-tag">corr()</span>
+      </div>
+      <div class="card-arrow">→</div>
+    </a>
+
+    <!-- Урок 2 — ACTIVE -->
+    <a href="lesson_02.html" class="lesson-card active fade-up">
+      <div class="card-top">
+        <span class="lesson-num">Урок 02 / 05</span>
+        <span class="status-badge status-active">▶ в работе</span>
+      </div>
+      <div class="card-title">Очистка данных</div>
+      <div class="card-desc">
+        Убираем аномалии, заполняем пропуски по стратегии, нормализуем категории на 6 языках, создаём чистый датафрейм.
+      </div>
+      <div class="card-tags">
+        <span class="card-tag">replace()</span>
+        <span class="card-tag">fillna()</span>
+        <span class="card-tag">where()</span>
+        <span class="card-tag">drop()</span>
+        <span class="card-tag">map()</span>
+      </div>
+    </a>
+
+    <!-- Урок 3 -->
+    <div class="lesson-card soon fade-up">
+      <div class="card-top">
+        <span class="lesson-num">Урок 03 / 05</span>
+        <span class="status-badge status-soon">скоро</span>
+      </div>
+      <div class="card-title">EDA и визуализация</div>
+      <div class="card-desc">
+        Строим графики, ищем паттерны. Распределение цен по странам, тепловые карты, ценовой паритет.
+      </div>
+      <div class="card-tags">
+        <span class="card-tag">matplotlib</span>
+        <span class="card-tag">seaborn</span>
+        <span class="card-tag">groupby</span>
+        <span class="card-tag">pivot_table</span>
+      </div>
+    </div>
+
+    <!-- Урок 4 -->
+    <div class="lesson-card soon fade-up">
+      <div class="card-top">
+        <span class="lesson-num">Урок 04 / 05</span>
+        <span class="status-badge status-soon">скоро</span>
+      </div>
+      <div class="card-title">Feature Engineering</div>
+      <div class="card-desc">
+        Создаём новые признаки, кодируем категории, нормализуем числа, конвертируем цены в USD.
+      </div>
+      <div class="card-tags">
+        <span class="card-tag">get_dummies</span>
+        <span class="card-tag">StandardScaler</span>
+        <span class="card-tag">LabelEncoder</span>
+        <span class="card-tag">apply()</span>
+      </div>
+    </div>
+
+    <!-- Урок 5 -->
+    <div class="lesson-card soon fade-up">
+      <div class="card-top">
+        <span class="lesson-num">Урок 05 / 05</span>
+        <span class="status-badge status-soon">скоро</span>
+      </div>
+      <div class="card-title">ML модели</div>
+      <div class="card-desc">
+        Обучаем модели принятия решений — классификация и регрессия. Оцениваем качество, интерпретируем результат.
+      </div>
+      <div class="card-tags">
+        <span class="card-tag">sklearn</span>
+        <span class="card-tag">RandomForest</span>
+        <span class="card-tag">train_test_split</span>
+        <span class="card-tag">metrics</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- STACK -->
+<section class="stack-section" id="stack">
+  <div class="section-header">
+    <span class="section-title">Стек</span>
+    <div class="section-line"></div>
+  </div>
+  <div class="stack-grid">
+    <div class="stack-item">
+      <div class="stack-name">pandas</div>
+      <div class="stack-role">DataFrames, очистка</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">numpy</div>
+      <div class="stack-role">Математика, массивы</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">matplotlib</div>
+      <div class="stack-role">Базовые графики</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">seaborn</div>
+      <div class="stack-role">Стат. визуализации</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">scikit-learn</div>
+      <div class="stack-role">ML модели</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">Python 3.13</div>
+      <div class="stack-role">Язык</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">Jupyter</div>
+      <div class="stack-role">Среда разработки</div>
+    </div>
+    <div class="stack-item">
+      <div class="stack-name">VS Code</div>
+      <div class="stack-role">IDE</div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section class="roadmap-section" id="roadmap">
+  <div class="section-header">
+    <span class="section-title">Прогресс</span>
+    <div class="section-line"></div>
+  </div>
+  <div class="roadmap">
+    <div class="roadmap-item done">
+      <div class="roadmap-title">Урок 1 — Загрузка и разведка данных ✓</div>
+      <div class="roadmap-desc">read_csv, shape, head, info, describe, isnull, nunique, value_counts, duplicated, corr, sample</div>
+    </div>
+    <div class="roadmap-item active">
+      <div class="roadmap-title">Урок 2 — Очистка данных ▶</div>
+      <div class="roadmap-desc">Аномалии -99, отрицательные скидки, удаление колонок, заполнение пропусков, нормализация категорий</div>
+    </div>
+    <div class="roadmap-item soon">
+      <div class="roadmap-title">Урок 3 — EDA и визуализация</div>
+      <div class="roadmap-desc">Гистограммы, boxplot, heatmap, price parity по странам, groupby агрегации</div>
+    </div>
+    <div class="roadmap-item soon">
+      <div class="roadmap-title">Урок 4 — Feature Engineering</div>
+      <div class="roadmap-desc">Создание признаков, кодирование категорий, нормализация, конвертация валют в USD</div>
+    </div>
+    <div class="roadmap-item soon">
+      <div class="roadmap-title">Урок 5 — ML модели</div>
+      <div class="roadmap-desc">train_test_split, Random Forest, Logistic Regression, метрики качества, feature importance</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-note">ML-edu · Adidas Global Catalogue 2026 · Python 3.13</span>
+  <a href="https://github.com/Mdyuzhev/ML-edu" class="footer-link" target="_blank">github.com/Mdyuzhev/ML-edu →</a>
+</footer>
+
+<script>
+  // Intersection observer for fade-up on scroll
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationPlayState = 'running';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-up').forEach(el => {
+    el.style.animationPlayState = 'paused';
+    io.observe(el);
+  });
+</script>
+</body>
+</html>
